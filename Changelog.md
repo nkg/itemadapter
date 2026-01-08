@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.13.1 (unreleased)
+### 0.13.1 (2026-01-08)
 
 Fixed `get_json_schema()` to properly format multiline field docstrings using
 `inspect.cleandoc()`, ensuring consistent indentation and whitespace handling
