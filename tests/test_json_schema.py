@@ -7,7 +7,7 @@ import unittest
 from collections.abc import Mapping, Sequence  # noqa: TC003
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import pytest
 
@@ -48,7 +48,7 @@ class OptionalItemListNestedItem:
 
 @dataclass
 class OptionalItemListItem:
-    foo: Optional[list[OptionalItemListNestedItem]] = None
+    foo: list[OptionalItemListNestedItem] | None = None
 
 
 @dataclass
@@ -329,7 +329,7 @@ class JsonSchemaTestCase(unittest.TestCase):
     def test_union_single(self):
         @dataclass
         class TestItem:
-            foo: Union[str]
+            foo: Union[str]  # noqa: UP007
 
         actual = ItemAdapter.get_json_schema(TestItem)
         expected = {
@@ -345,7 +345,7 @@ class JsonSchemaTestCase(unittest.TestCase):
     def test_custom_any_of(self):
         @dataclass
         class TestItem:
-            foo: Union[str, SimpleItem] = field(
+            foo: str | SimpleItem = field(
                 metadata={"json_schema_extra": {"anyOf": []}},
             )
 
@@ -458,7 +458,6 @@ class JsonSchemaTestCase(unittest.TestCase):
         check_schemas(actual, expected)
 
     @unittest.skipIf(not AttrsItem, "attrs module is not available")
-    @unittest.skipIf(PYTHON_VERSION < (3, 10), "Modern optional annotations require Python 3.10+")
     def test_modern_optional_annotations(self):
         import attr
 
@@ -554,7 +553,7 @@ class CrossNestingTestCase(unittest.TestCase):
 
     maxDiff = None
 
-    @unittest.skipIf(not PydanticV1Model, "pydantic module is not available")
+    @unittest.skipIf(not PydanticV1Model, "pydantic <2 module is not available")
     def test_dataclass_pydantic1(self):
         @dataclass
         class TestItem:
@@ -613,7 +612,7 @@ class CrossNestingTestCase(unittest.TestCase):
     @unittest.skipIf(not ScrapySubclassedItem, "scrapy module is not available")
     @unittest.skipIf(not AttrsItem, "attrs module is not available")
     def test_scrapy_attrs(self):
-        actual = ItemAdapter.get_json_schema(ScrapySubclassedItemCrossNested)
+        actual = ItemAdapter.get_json_schema(ScrapySubclassedItemCrossNested)  # pylint: disable=possibly-used-before-assignment
         expected = {
             "type": "object",
             "additionalProperties": False,
@@ -637,7 +636,7 @@ class CrossNestingTestCase(unittest.TestCase):
         }
         check_schemas(actual, expected)
 
-    @unittest.skipIf(not PydanticV1Model, "pydantic module is not available")
+    @unittest.skipIf(not PydanticV1Model, "pydantic <2 module is not available")
     @unittest.skipIf(not ScrapySubclassedItem, "scrapy module is not available")
     def test_pydantic1_scrapy(self):
         from . import pydantic_v1
@@ -745,6 +744,7 @@ class CrossNestingTestCase(unittest.TestCase):
         check_schemas(actual, expected)
 
     @unittest.skipIf(not PydanticModel, "pydantic module is not available")
+    @unittest.skipIf(not PydanticV1Model, "pydantic <2 module is not available")
     @pytest.mark.filterwarnings("ignore:Mixing V1 models and V2 models")
     def test_pydantics(self):
         class TestItem(pydantic.BaseModel):

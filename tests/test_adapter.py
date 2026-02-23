@@ -79,7 +79,7 @@ class ItemAdapterReprTestCase(unittest.TestCase):
         adapter["name"] = "set after init"
         assert repr(adapter) == "<ItemAdapter for AttrsItemWithoutInit(name='set after init')>"
 
-    @unittest.skipIf(not PydanticV1Model, "pydantic module is not available")
+    @unittest.skipIf(not PydanticV1Model, "pydantic <2 module is not available")
     def test_repr_pydantic(self):
         item = PydanticV1Model(name="asdf", value=1234)
         adapter = ItemAdapter(item)
@@ -407,7 +407,7 @@ class PydanticV1ModelTestCase(NonDictTestMixin, unittest.TestCase):
         **{
             k: v
             for k, v in NonDictTestMixin.expected_json_schema.items()
-            if k not in {"additionalProperties"}
+            if k != "additionalProperties"
         },
         "properties": {
             **{
@@ -471,7 +471,7 @@ class PydanticModelTestCase(NonDictTestMixin, unittest.TestCase):
         **{
             k: v
             for k, v in NonDictTestMixin.expected_json_schema.items()
-            if k not in {"additionalProperties"}
+            if k != "additionalProperties"
         },
         "properties": {
             **{
